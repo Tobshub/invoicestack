@@ -1,7 +1,8 @@
 "use client";
 import FormInput from "@/app/_components/Input";
+import Logo from "@/app/_components/Logo";
 import { firebaseAuth } from "@/firebase/client";
-import { Button, Snackbar, Typography } from "@mui/joy";
+import { Button, Snackbar } from "@mui/joy";
 import { FirebaseError } from "firebase/app";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Link from "next/link";
@@ -75,9 +76,7 @@ export default function LoginPage() {
         {errors.toast}
       </Snackbar>
       <section className="flex h-screen flex-col items-center justify-center">
-        <Typography level="h1" sx={{ color: "primary.500" }}>
-          InvoiceStack
-        </Typography>
+        <Logo />
         <form
           onSubmit={handleSubmit}
           onInputCapture={(e) => {

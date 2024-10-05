@@ -1,10 +1,11 @@
 "use client";
 import FormInput from "@/app/_components/Input";
+import Logo from "@/app/_components/Logo";
 import { firebaseAuth } from "@/firebase/client";
 import { api } from "@/trpc/react";
-import { Button, Snackbar, Typography } from "@mui/joy";
+import { Button, Snackbar } from "@mui/joy";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword, deleteUser, updateProfile, User } from "firebase/auth";
+import { createUserWithEmailAndPassword, deleteUser, updateProfile, type User } from "firebase/auth";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -108,9 +109,7 @@ export default function LoginPage() {
         {errors.toast}
       </Snackbar>
       <section className="flex h-screen flex-col items-center justify-center">
-        <Typography level="h1" sx={{ color: "primary.500" }}>
-          InvoiceStack
-        </Typography>
+        <Logo />
         <form
           onSubmit={handleSubmit}
           onInputCapture={(e) => {

@@ -11,10 +11,10 @@ export default function InvoicesLayout({ children }: Readonly<{ children: React.
     void firebaseAuth()
       .authStateReady()
       .then(() => {
-        if (!firebaseAuth().currentUser)
+        if (!pathName.startsWith("/invoices/view") && !firebaseAuth().currentUser)
           router.replace(`/login?${pathName ? `redirect=${encodeURIComponent(pathName)}` : ""}`);
       });
-  }, [router]);
+  }, [router, pathName]);
 
   return <>{children}</>;
 }

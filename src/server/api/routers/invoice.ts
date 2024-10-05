@@ -20,7 +20,7 @@ export const invoiceRouter = createTRPCRouter({
         console.error(e);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Something went wrong",
+          message: "Something went wrong. Please try again later.",
         });
       }
     }),
