@@ -1,10 +1,10 @@
-'use client';
-import createCache, { type Options} from '@emotion/cache';
-import { useServerInsertedHTML } from 'next/navigation';
-import { CacheProvider } from '@emotion/react';
-import { CssVarsProvider } from '@mui/joy/styles';
-import CssBaseline from '@mui/joy/CssBaseline';
-import { useState } from 'react';
+"use client";
+import createCache, { type Options } from "@emotion/cache";
+import { useServerInsertedHTML } from "next/navigation";
+import { CacheProvider } from "@emotion/react";
+import { CssVarsProvider } from "@mui/joy/styles";
+import CssBaseline from "@mui/joy/CssBaseline";
+import { useState } from "react";
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
@@ -36,14 +36,14 @@ export default function ThemeRegistry(props: { options: Options; children: React
     if (names.length === 0) {
       return null;
     }
-    let styles = '';
+    let styles = "";
     for (const name of names) {
       styles += cache.inserted[name];
     }
     return (
       <style
         key={cache.key}
-        data-emotion={`${cache.key} ${names.join(' ')}`}
+        data-emotion={`${cache.key} ${names.join(" ")}`}
         dangerouslySetInnerHTML={{
           __html: styles,
         }}

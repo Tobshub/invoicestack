@@ -8,9 +8,7 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     GOOGLE_APPLICATION_CREDENTIALS_JSON: z.string(),
   },
 
@@ -36,14 +34,12 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    GOOGLE_APPLICATION_CREDENTIALS_JSON:
-      process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
     NEXT_PUBLIC_FB_API_KEY: process.env.NEXT_PUBLIC_FB_API_KEY,
     NEXT_PUBLIC_FB_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN,
     NEXT_PUBLIC_FB_PROJECT_ID: process.env.NEXT_PUBLIC_FB_PROJECT_ID,
     NEXT_PUBLIC_FB_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FB_STORAGE_BUCKET,
-    NEXT_PUBLIC_FB_MESSAGING_SENDER_ID:
-      process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
+    NEXT_PUBLIC_FB_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
     NEXT_PUBLIC_FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
     NEXT_PUBLIC_FB_MEASUREMENT_ID: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID,
   },

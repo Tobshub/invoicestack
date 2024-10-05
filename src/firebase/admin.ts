@@ -4,9 +4,7 @@ import { getAuth } from "firebase-admin/auth";
 
 const createAdminApp = () =>
   initializeApp({
-    credential: cert(
-      JSON.parse(env.GOOGLE_APPLICATION_CREDENTIALS_JSON) as ServiceAccount
-    ),
+    credential: cert(JSON.parse(env.GOOGLE_APPLICATION_CREDENTIALS_JSON) as ServiceAccount),
   });
 
 const globalForAdminApp = globalThis as unknown as {
