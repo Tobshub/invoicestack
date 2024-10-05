@@ -21,9 +21,10 @@ model User {
 model Invoice {
   id String @id @default(cuid())
 
-  user User @relation(fields: [userId], references: [id])
-  userId Int
-
+  user User @relation(fields: [userId], references: [firebaseUid])
+  userId String
+  
+  name String
   data Json
 
   status InvoiceStatus

@@ -1,6 +1,7 @@
 import { adminAuth } from "@/firebase/admin";
-import { authenticatedProcedure, createTRPCRouter } from "../trpc";
+import { authenticatedProcedure, createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
   createProfile: authenticatedProcedure.mutation(async ({ ctx }) => {
@@ -17,4 +18,11 @@ export const userRouter = createTRPCRouter({
       });
     }
   }),
+  getContactData: publicProcedure.input(z.string()).query(async ({ input }) => {
+    const user = await adminAuth().getUser(input);
+    return {
+      name: user.displayName,
+      email: user.email,
+    }
+  })
 });
