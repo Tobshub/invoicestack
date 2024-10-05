@@ -11,6 +11,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    GOOGLE_APPLICATION_CREDENTIALS_JSON: z.string(),
   },
 
   /**
@@ -19,7 +20,13 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_FB_API_KEY: z.string(),
+    NEXT_PUBLIC_FB_AUTH_DOMAIN: z.string(),
+    NEXT_PUBLIC_FB_PROJECT_ID: z.string(),
+    NEXT_PUBLIC_FB_STORAGE_BUCKET: z.string(),
+    NEXT_PUBLIC_FB_MESSAGING_SENDER_ID: z.string(),
+    NEXT_PUBLIC_FB_APP_ID: z.string(),
+    NEXT_PUBLIC_FB_MEASUREMENT_ID: z.string().optional(),
   },
 
   /**
@@ -29,7 +36,16 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    GOOGLE_APPLICATION_CREDENTIALS_JSON:
+      process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    NEXT_PUBLIC_FB_API_KEY: process.env.NEXT_PUBLIC_FB_API_KEY,
+    NEXT_PUBLIC_FB_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN,
+    NEXT_PUBLIC_FB_PROJECT_ID: process.env.NEXT_PUBLIC_FB_PROJECT_ID,
+    NEXT_PUBLIC_FB_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FB_STORAGE_BUCKET,
+    NEXT_PUBLIC_FB_MESSAGING_SENDER_ID:
+      process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
+    NEXT_PUBLIC_FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
+    NEXT_PUBLIC_FB_MEASUREMENT_ID: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
