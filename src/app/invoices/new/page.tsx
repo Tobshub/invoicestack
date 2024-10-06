@@ -89,8 +89,8 @@ export default function NewInvoicePage() {
       return;
     }
     createInvoiceMut.mutate({
-      name: `Invoice ${invoice.id}`,
-      data: JSON.stringify(invoice),
+      name: `Invoice ${validation.data.id}`,
+      data: JSON.stringify(validation.data),
     });
   };
 
@@ -137,6 +137,12 @@ export default function NewInvoicePage() {
           onSubmit={(e) => {
             e.preventDefault();
             void handleSubmit();
+          }}
+          onInputCapture={(e) => {
+            if ("name" in e.target) {
+              const inputName = e.target.name as string;
+              if (errors[inputName as keyof Invoice]) setErrors((prev) => ({ ...prev, [inputName]: "" }));
+            }
           }}
           className="elevated mx-auto flex min-h-[500px] max-w-screen-xl flex-col gap-4 rounded-sm bg-white px-4 py-4"
         >
