@@ -9,23 +9,7 @@ import { api } from "@/trpc/react";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Logo from "@/app/_components/Logo";
-
-interface InvoiceItem {
-  name: string;
-  quantity: number;
-  rate: number;
-}
-
-interface Invoice {
-  id: string;
-  from: string;
-  billTo: string;
-  shipTo: string;
-  date: Date;
-  dueDate: Date | null;
-  items: Array<InvoiceItem>;
-  notes: string;
-}
+import type { Invoice, InvoiceItem } from "@/types";
 
 const DefaultInvoice: Invoice = {
   id: "1",
@@ -265,15 +249,15 @@ export default function NewInvoicePage() {
             ))}
             <Button
               variant="outlined"
-              sx={{ gap: 1, my: 2 }}
+              sx={{ my: 2 }}
               onClick={() =>
                 setInvoice((state) => ({
                   ...state,
                   items: [...state.items, { name: "", quantity: 0, rate: 0 }],
                 }))
               }
+              startDecorator={<AddIcon />}
             >
-              <AddIcon />
               New Item
             </Button>
           </div>
