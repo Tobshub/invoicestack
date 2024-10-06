@@ -47,7 +47,7 @@ model InvoicePayment {
 
   email  String
   amount Int
-  txRef  String
+  txRef  String @unique
   status PAYMENTSTATUS
 
   invoice   Invoice @relation(fields: [invoiceId], references: [id])

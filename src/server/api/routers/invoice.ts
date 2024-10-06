@@ -46,11 +46,15 @@ export const invoiceRouter = createTRPCRouter({
         invoiceId: z.string(),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
         const invoice = await ctx.db.invoice.findUnique({ where: { id: input.invoiceId } });
         if (!invoice) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+        }
+
+        if (invoice.status === "PAID") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Invoice already paid" });
         }
 
         // convert total to subunit
@@ -72,6 +76,7 @@ export const invoiceRouter = createTRPCRouter({
           },
         });
 
+        console.log(`New Transaction Initialized: ${payment.txRef}`);
         return payment;
       } catch (e) {
         console.error(e);

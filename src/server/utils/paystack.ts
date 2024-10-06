@@ -20,13 +20,19 @@ export async function initPaystackTransaction(
   amount: string,
   email: string,
   metadata: Record<string, string>
-): Promise<{ txRef: string; txUrl: string }> {
+) {
   const res = await axiosBase.post<InitTx>("/transaction/initialize", {
     amount,
     email,
     metadata,
     currency: "NGN",
   });
-  if (!res.data.status) throw new Error(`Failed to initialize Paystack Transaction: ${res.data.message}`);
-  return { txRef: res.data.data.reference, txUrl: res.data.data.authorization_url };
+  if (!res.data.status)
+    throw new Error(`Failed to initialize Paystack Transaction: ${res.data.message}`);
+  return {
+    amount: amount,
+    txRef: res.data.data.reference,
+    txUrl: res.data.data.authorization_url,
+    accessCode: res.data.data.access_code,
+  };
 }

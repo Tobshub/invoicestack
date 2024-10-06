@@ -11,14 +11,23 @@ import {
   ModalDialog,
   Sheet,
   Skeleton,
+  Snackbar,
   Typography,
 } from "@mui/joy";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Invoice } from "@/types";
 import { firebaseAuth } from "@/firebase/client";
 import ShareIcon from "@mui/icons-material/Share";
+import CloseIcon from "@mui/icons-material/Close";
 import ClipboardIcon from "@mui/icons-material/ContentPaste";
 import ClipboardCheckedIcon from "@mui/icons-material/AssignmentTurnedIn";
+import PaymentIcon from "@mui/icons-material/Payment";
+import Image from "next/image";
+import paystackSvg from "@/assets/paystack.svg";
+import { z } from "zod";
+import type { StaticImport } from "next/dist/shared/lib/get-img-props";
+import PaystackPop from "@paystack/inline-js";
+import { env } from "@/env";
 
 function InvoiceSkeleton() {
   return (
@@ -114,6 +123,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
     [invoiceQuery.data?.data]
   );
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   if (invoiceQuery.isLoading) {
     return <InvoiceSkeleton />;
@@ -296,10 +306,164 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
         {firebaseAuth().currentUser?.uid !== invoiceQuery.data.userId &&
         invoiceQuery.data.status === "PENDING" ? (
           <div className="mx-auto my-3 flex max-w-screen-xl justify-end">
-            <Button size="lg">Pay Invoice</Button>
+            {showPaymentForm ? (
+              <Button
+                size="lg"
+                onClick={() => setShowPaymentForm(false)}
+                color="danger"
+                variant="soft"
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                onClick={() => setShowPaymentForm(true)}
+                startDecorator={<PaymentIcon />}
+              >
+                Pay Invoice
+              </Button>
+            )}
           </div>
         ) : null}
       </section>
+      {showPaymentForm && (
+        <section className="mx-auto max-w-screen-xl">
+          <InvoicePaymentForm invoiceId={params.id} />
+        </section>
+      )}
     </main>
+  );
+}
+
+const invoicePaymentSchema = z.strictObject({
+  invoiceId: z.string(),
+  email: z.string().email(),
+  name: z.string().min(1, "Full name is required"),
+});
+
+function InvoicePaymentForm(props: { invoiceId: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [notification, setNotification] = useState<string>("");
+  const paystackInstance = useMemo(
+    () =>
+      new PaystackPop({
+        onCancel: () => {
+          console.log("DEEZ NUTS");
+        },
+      }),
+    []
+  );
+  const initPaymentMut = api.invoice.initPayment.useMutation();
+
+  useEffect(() => {
+    if (formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(e.currentTarget));
+    const validation = invoicePaymentSchema.safeParse(formData);
+    if (!validation.success) {
+      const formErrors = validation.error.format();
+      for (const errorKey in formErrors) {
+        type T = keyof typeof formErrors;
+        const error = formErrors[errorKey as unknown as T];
+        if (!error || Array.isArray(error)) continue;
+        setErrors((state) => ({ ...state, [errorKey]: error._errors.at(-1)! }));
+      }
+      return;
+    }
+
+    const payment = await initPaymentMut.mutateAsync(validation.data);
+    paystackInstance.newTransaction({
+      key: env.NEXT_PUBLIC_PAYSTACK_KEY,
+      reference: payment.txRef,
+      amount: payment.amount,
+      email: validation.data.email,
+      onError: (e) => {
+        console.error("PaystackPop Error::", e);
+        setErrors(state => ({ ...state, toast: "An error occurred. Please try again later." }));
+      },
+      onSuccess: () => {
+        setNotification("Payment successful. Please check your email for details.");
+      }
+    });
+  };
+
+  return (
+    <>
+      <Snackbar
+        size="lg"
+        color="success"
+        variant="outlined"
+        open={!!notification}
+        onClose={() => setNotification("")}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        endDecorator={
+          <CloseIcon
+            sx={{ cursor: "pointer" }}
+            onClick={() => setErrors((state) => ({ ...state, items: "" }))}
+          />
+        }
+      >
+        {notification}
+      </Snackbar>
+      <Snackbar
+        size="lg"
+        color="danger"
+        open={!!errors.toast}
+        onClose={() => setErrors((state) => ({ ...state, toast: "" }))}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        endDecorator={
+          <CloseIcon
+            sx={{ cursor: "pointer" }}
+            onClick={() => setErrors((state) => ({ ...state, toast: "" }))}
+          />
+        }
+      >
+        {errors.toast}
+      </Snackbar>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onInputCapture={(e) => {
+        if ("name" in e.target) {
+          const inputName = e.target.name as string;
+          if (errors[inputName as keyof Invoice])
+            setErrors((prev) => ({ ...prev, [inputName]: "" }));
+        }
+      }}
+      className="mb-32 flex flex-col items-center gap-4"
+    >
+      <FormInput
+        label="Full Name"
+        name="name"
+        placeholder="John Doe"
+        error={errors.name}
+        type="text"
+        sx={{ width: 600 }}
+      />
+      <FormInput
+        label="Email"
+        name="email"
+        placeholder="user@invoicestack.com"
+        error={errors.email}
+        type="email"
+        sx={{ width: 600 }}
+      />
+      <input hidden name="invoiceId" value={props.invoiceId} readOnly />
+      <Button
+        type="submit"
+        sx={{ width: 600 }}
+        startDecorator={
+          <Image src={paystackSvg as StaticImport} alt="Paystack Logo" width={20} height={20} />
+        }
+      >
+        Pay with Paystack
+      </Button>
+    </form>
+    </>
   );
 }
