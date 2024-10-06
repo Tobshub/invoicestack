@@ -35,5 +35,5 @@ export const invoiceRouter = createTRPCRouter({
       where: { id: input },
       select: { name: true, status: true, data: true, userId: true },
     });
-  })
+  }),
 });

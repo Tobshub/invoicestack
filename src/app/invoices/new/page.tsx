@@ -34,7 +34,7 @@ const DefaultInvoice: Invoice = {
   shipTo: "",
   date: new Date(),
   dueDate: null,
-  items: [ { name: "", quantity: 0, rate: 0 } ],
+  items: [{ name: "", quantity: 0, rate: 0 }],
   notes: "",
 };
 
@@ -227,7 +227,10 @@ export default function NewInvoicePage() {
               <h2>Amount</h2>
             </div>
             {invoice.items.map((item, idx) => (
-              <div key={idx} className="relative group my-1 flex flex-row items-center justify-start gap-2">
+              <div
+                key={idx}
+                className="group relative my-1 flex flex-row items-center justify-start gap-2"
+              >
                 <FormInput
                   controlSx={{ width: "60%" }}
                   placeholder="Description of item/service..."
@@ -253,9 +256,11 @@ export default function NewInvoicePage() {
                   N {(item.rate * item.quantity).toLocaleString("en-GB").split(".")[0]}.
                   {(item.rate * item.quantity).toFixed(2).split(".")[1]}
                 </span>
-                {invoice.items.length > 1 &&  <span className="hidden group-hover:grid absolute z-10 right-0 place-items-center">
-                  <CloseIcon sx={{ cursor: "pointer" }} onClick={() => handleRemoveItem(idx)} />
-                </span>}
+                {invoice.items.length > 1 && (
+                  <span className="absolute right-0 z-10 hidden place-items-center group-hover:grid">
+                    <CloseIcon sx={{ cursor: "pointer" }} onClick={() => handleRemoveItem(idx)} />
+                  </span>
+                )}
               </div>
             ))}
             <Button

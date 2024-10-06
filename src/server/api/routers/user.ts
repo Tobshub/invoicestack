@@ -23,6 +23,6 @@ export const userRouter = createTRPCRouter({
     return {
       name: user.displayName,
       email: user.email,
-    }
-  })
+    };
+  }),
 });

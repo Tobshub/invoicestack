@@ -7,27 +7,25 @@ import Link from "next/link";
 export default function ListInvoicesPage() {
   const invoices = api.invoice.list.useQuery();
   return (
-  <>
+    <>
       <header>
-        <nav className="mx-auto max-w-screen-xl py-4 flex items-center justify-between">
+        <nav className="mx-auto flex max-w-screen-xl items-center justify-between py-4">
           <Logo />
           <Link href="/invoices/new">
-            <Button>
-              New Invoice
-            </Button>
+            <Button>New Invoice</Button>
           </Link>
         </nav>
       </header>
-    <main className="mx-auto max-w-screen-xl">
-      <Typography level="title-lg">My Invoices</Typography>
-      <ul>
-        {invoices.data?.map((invoice) => (
-          <li key={invoice.id}>
-            <Link href={`/invoices/view/${invoice.id}`}>{invoice.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+      <main className="mx-auto max-w-screen-xl">
+        <Typography level="title-lg">My Invoices</Typography>
+        <ul>
+          {invoices.data?.map((invoice) => (
+            <li key={invoice.id}>
+              <Link href={`/invoices/view/${invoice.id}`}>{invoice.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </main>
     </>
-  )
+  );
 }

@@ -9,7 +9,7 @@ import { invoiceRouter } from "./routers/invoice";
  */
 export const appRouter = createTRPCRouter({
   user: userRouter,
-  invoice: invoiceRouter
+  invoice: invoiceRouter,
 });
 
 // export type definition of API

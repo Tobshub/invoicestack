@@ -1,7 +1,8 @@
 import { type ColorPaletteProp, FormControl, FormHelperText, FormLabel, Textarea } from "@mui/joy";
 import type { SxProps } from "@mui/joy/styles/types";
 
-interface FormInputProps extends Omit<React.InputHTMLAttributes<HTMLTextAreaElement & HTMLDivElement>, "size"> {
+interface FormInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLTextAreaElement & HTMLDivElement>, "size"> {
   color?: ColorPaletteProp;
   size?: "sm" | "md" | "lg";
   error?: string;
@@ -20,4 +21,3 @@ export default function FormTextArea(props: FormInputProps) {
     </FormControl>
   );
 }
-

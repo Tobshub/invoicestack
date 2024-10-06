@@ -104,7 +104,10 @@ export default function LoginPage() {
           <Button type="submit">Login</Button>
         </form>
         <span className="mt-4">
-          Don&apos;t have an account? <Link href="/register" className="text-blue-600">Register</Link>
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="text-blue-600">
+            Register
+          </Link>
         </span>
       </section>
     </main>

@@ -5,7 +5,12 @@ import { firebaseAuth } from "@/firebase/client";
 import { api } from "@/trpc/react";
 import { Button, Snackbar } from "@mui/joy";
 import { FirebaseError } from "firebase/app";
-import { createUserWithEmailAndPassword, deleteUser, updateProfile, type User } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  updateProfile,
+  type User,
+} from "firebase/auth";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -157,7 +162,9 @@ export default function LoginPage() {
             type="password"
             error={errors.confirmPassword}
           />
-          <Button disabled={isLoading} type="submit">Register</Button>
+          <Button disabled={isLoading} type="submit">
+            Register
+          </Button>
         </form>
         <span className="mt-4">
           Already have an account?{" "}
