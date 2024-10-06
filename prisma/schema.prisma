@@ -19,17 +19,18 @@ model User {
 }
 
 model Invoice {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  user User @relation(fields: [userId], references: [firebaseUid])
+  user   User   @relation(fields: [userId], references: [firebaseUid])
   userId String
-  
+
   name String
   data Json
 
-  status InvoiceStatus
+  status         InvoiceStatus
+  InvoicePayment InvoicePayment[]
 }
 
 enum InvoiceStatus {
@@ -38,3 +39,27 @@ enum InvoiceStatus {
   CANCELED
   REJECTED
 }
+
+model InvoicePayment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  email  String
+  amount Int
+  txRef  String
+  status PAYMENTSTATUS
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+  invoiceId String
+}
+
+enum PAYMENTSTATUS {
+  PENDING
+  SUCCESS
+  REFUNDED
+  FAILED
+}
+
+// model InvoicePayout {
+// }

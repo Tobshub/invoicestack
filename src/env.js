@@ -9,6 +9,7 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+    PAYSTACK_SECRET: z.string(),
     GOOGLE_APPLICATION_CREDENTIALS_JSON: z.string(),
   },
 
@@ -25,6 +26,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FB_MESSAGING_SENDER_ID: z.string(),
     NEXT_PUBLIC_FB_APP_ID: z.string(),
     NEXT_PUBLIC_FB_MEASUREMENT_ID: z.string().optional(),
+    NEXT_PUBLIC_PAYSTACK_KEY: z.string(),
   },
 
   /**
@@ -34,6 +36,7 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    PAYSTACK_SECRET: process.env.PAYSTACK_SECRET,
     GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
     NEXT_PUBLIC_FB_API_KEY: process.env.NEXT_PUBLIC_FB_API_KEY,
     NEXT_PUBLIC_FB_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN,
@@ -42,6 +45,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FB_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
     NEXT_PUBLIC_FB_APP_ID: process.env.NEXT_PUBLIC_FB_APP_ID,
     NEXT_PUBLIC_FB_MEASUREMENT_ID: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID,
+    NEXT_PUBLIC_PAYSTACK_KEY: process.env.NEXT_PUBLIC_PAYSTACK_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

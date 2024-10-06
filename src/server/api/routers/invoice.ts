@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { authenticatedProcedure, createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { initPaystackTransaction } from "@/server/utils/paystack";
+import type { Invoice } from "@/types";
 
 export const invoiceRouter = createTRPCRouter({
   create: authenticatedProcedure
@@ -36,4 +38,47 @@ export const invoiceRouter = createTRPCRouter({
       select: { name: true, status: true, data: true, userId: true },
     });
   }),
+  initPayment: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        email: z.string().email(),
+        invoiceId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const invoice = await ctx.db.invoice.findUnique({ where: { id: input.invoiceId } });
+        if (!invoice) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+        }
+
+        // convert total to subunit
+        const invoiceTotal =
+          parseFloat(
+            (JSON.parse(invoice.data as string) as Invoice).items
+              .reduce((a, b) => a + b.rate * b.quantity, 0)
+              .toFixed(2)
+          ) * 100;
+
+        const payment = await initPaystackTransaction(invoiceTotal.toString(), input.email, input);
+        await ctx.db.invoicePayment.create({
+          data: {
+            txRef: payment.txRef,
+            status: "PENDING",
+            email: input.email,
+            invoiceId: input.invoiceId,
+            amount: invoiceTotal,
+          },
+        });
+
+        return payment;
+      } catch (e) {
+        console.error(e);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong. Please try again later.",
+        });
+      }
+    }),
 });
