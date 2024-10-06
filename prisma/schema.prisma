@@ -20,6 +20,8 @@ model User {
 
 model Invoice {
   id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 
   user User @relation(fields: [userId], references: [firebaseUid])
   userId String
