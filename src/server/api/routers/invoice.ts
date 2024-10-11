@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { authenticatedProcedure, createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { initPaystackTransaction } from "@/server/utils/paystack";
+import { createTransferRecipient, initPaystackTransaction, transfer } from "@/server/utils/paystack";
 import type { Invoice } from "@/types";
+import { adminAuth } from "@/firebase/admin";
 
 export const invoiceRouter = createTRPCRouter({
   create: authenticatedProcedure
@@ -85,5 +86,30 @@ export const invoiceRouter = createTRPCRouter({
           message: "Something went wrong. Please try again later.",
         });
       }
+    }),
+  withdraw: authenticatedProcedure
+    .input(z.object({ invoiceId: z.string(), bankCode: z.string(), nuban: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.db.invoice.findUnique({ where: { id: input.invoiceId } });
+      if (!invoice || invoice.userId !== ctx.firebaseUid) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+      }
+
+      if (invoice.status !== "PAID") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Invoice has not been paid for." });
+      }
+
+      // convert total to subunit
+      const invoiceTotal =
+        parseFloat(
+          (JSON.parse(invoice.data as string) as Invoice).items
+            .reduce((a, b) => a + b.rate * b.quantity, 0)
+            .toFixed(2)
+        ) * 100;
+
+      const user = await adminAuth().getUser(ctx.firebaseUid)
+      const recipient = await createTransferRecipient(user.displayName ?? "John Doe", input.bankCode, input.nuban);
+
+      const res = await transfer(invoiceTotal, recipient.recipient_code);
     }),
 });

@@ -28,6 +28,7 @@ import { z } from "zod";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import PaystackPop from "@paystack/inline-js";
 import { env } from "@/env";
+import FormAutocomplete from "@/app/_components/Autocomplete";
 
 function InvoiceSkeleton() {
   return (
@@ -69,12 +70,37 @@ function InvoiceSkeleton() {
   );
 }
 
-interface ShareInvoiceModalProps {
+interface ModalProps {
   open: boolean;
   close: () => void;
 }
 
-function ShareInvoiceModal(props: ShareInvoiceModalProps) {
+function WithdrawModal(props: ModalProps) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
+  const banksQuery = api.paystack.listBanks.useQuery();
+
+  return (
+    <Modal open={props.open} onClose={props.close}>
+      <ModalDialog>
+        <ModalClose />
+        <Typography level="title-lg">Withdraw Invoice Payout</Typography>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <FormAutocomplete
+            label="Choose Your Bank"
+            options={banksQuery.data?.data.map((b) => b.name) ?? []}
+          />
+          <FormInput label="Account Number" />
+          <Button type="submit">Withdraw</Button>
+        </form>
+      </ModalDialog>
+    </Modal>
+  );
+}
+
+function ShareInvoiceModal(props: ModalProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
@@ -124,6 +150,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   );
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
 
   if (invoiceQuery.isLoading) {
     return <InvoiceSkeleton />;
@@ -143,6 +170,7 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
   return (
     <main className="min-h-screen pt-8">
       <ShareInvoiceModal open={shareModalOpen} close={() => setShareModalOpen(false)} />
+      <WithdrawModal open={withdrawModalOpen} close={() => setWithdrawModalOpen(false)} />
       <section className="mx-auto max-w-screen-xl">
         <Logo />
         {firebaseAuth().currentUser?.uid === invoiceQuery.data.userId &&
@@ -171,6 +199,14 @@ export default function ViewInvoicePage({ params }: { params: { id: string } }) 
             {invoiceQuery.data.status}
           </Chip>
         )}
+        {firebaseAuth().currentUser?.uid === invoiceQuery.data.userId &&
+          invoiceQuery.data.status === "PAID" && (
+            <div className="mt-2">
+              <Button variant="outlined" onClick={() => setWithdrawModalOpen(true)}>
+                Withdraw Payout
+              </Button>
+            </div>
+          )}
       </section>
       <section className="my-10 w-full bg-gray-100 py-8">
         <div className="elevated mx-auto flex min-h-[500px] max-w-screen-xl flex-col gap-4 rounded-sm bg-white px-4 py-4">
@@ -384,11 +420,11 @@ function InvoicePaymentForm(props: { invoiceId: string }) {
       email: validation.data.email,
       onError: (e) => {
         console.error("PaystackPop Error::", e);
-        setErrors(state => ({ ...state, toast: "An error occurred. Please try again later." }));
+        setErrors((state) => ({ ...state, toast: "An error occurred. Please try again later." }));
       },
       onSuccess: () => {
         setNotification("Payment successful. Please check your email for details.");
-      }
+      },
     });
   };
 
@@ -425,45 +461,45 @@ function InvoicePaymentForm(props: { invoiceId: string }) {
       >
         {errors.toast}
       </Snackbar>
-    <form
-      ref={formRef}
-      onSubmit={handleSubmit}
-      onInputCapture={(e) => {
-        if ("name" in e.target) {
-          const inputName = e.target.name as string;
-          if (errors[inputName as keyof Invoice])
-            setErrors((prev) => ({ ...prev, [inputName]: "" }));
-        }
-      }}
-      className="mb-32 flex flex-col items-center gap-4"
-    >
-      <FormInput
-        label="Full Name"
-        name="name"
-        placeholder="John Doe"
-        error={errors.name}
-        type="text"
-        sx={{ width: 600 }}
-      />
-      <FormInput
-        label="Email"
-        name="email"
-        placeholder="user@invoicestack.com"
-        error={errors.email}
-        type="email"
-        sx={{ width: 600 }}
-      />
-      <input hidden name="invoiceId" value={props.invoiceId} readOnly />
-      <Button
-        type="submit"
-        sx={{ width: 600 }}
-        startDecorator={
-          <Image src={paystackSvg as StaticImport} alt="Paystack Logo" width={20} height={20} />
-        }
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        onInputCapture={(e) => {
+          if ("name" in e.target) {
+            const inputName = e.target.name as string;
+            if (errors[inputName as keyof Invoice])
+              setErrors((prev) => ({ ...prev, [inputName]: "" }));
+          }
+        }}
+        className="mb-32 flex flex-col items-center gap-4"
       >
-        Pay with Paystack
-      </Button>
-    </form>
+        <FormInput
+          label="Full Name"
+          name="name"
+          placeholder="John Doe"
+          error={errors.name}
+          type="text"
+          sx={{ width: 600 }}
+        />
+        <FormInput
+          label="Email"
+          name="email"
+          placeholder="user@invoicestack.com"
+          error={errors.email}
+          type="email"
+          sx={{ width: 600 }}
+        />
+        <input hidden name="invoiceId" value={props.invoiceId} readOnly />
+        <Button
+          type="submit"
+          sx={{ width: 600 }}
+          startDecorator={
+            <Image src={paystackSvg as StaticImport} alt="Paystack Logo" width={20} height={20} />
+          }
+        >
+          Pay with Paystack
+        </Button>
+      </form>
     </>
   );
 }
